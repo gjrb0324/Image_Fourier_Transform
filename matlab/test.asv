@@ -1,0 +1,36 @@
+start = rgb2gray(imread('D:\Kyu\Study\2021 Signal & System\HW1\dataset\start.jpg'));
+img_1 = rgb2gray(imread('D:\Kyu\Study\2021 Signal & System\HW1\dataset\0010.jpg'));
+patch_1 = start(138:187, 272:321);
+[i j] =sliding_window(patch_1, start);
+function sum = corr(patch, patch_t)
+    h = size(patch,1);
+    w = size(patch,2);
+    sum =0.0;
+    avg_p = mean(mean(patch));
+    avg_t = mean(mean(patch_t));
+    std_p = std2(patch);
+    std_t = std2(patch_t);
+    for  y = 1: h
+        for x = 1:w
+
+            a1 =patch(y,x)-avg_p;
+            a2 = cast(a2, 'double');
+            a2 = patch_t(y,x)-avg_t;
+            sum = sum +((patch(y,x)-avg_p)*(patch_t(y,x)-avg_t))/(std_p*std_t);
+        end
+    end
+    sum = sum/(h*w);
+end
+function [i,j]= sliding_window(patch,target_img)
+    r = 1;
+    h = size(patch,1);
+    w = size(patch,2);
+    for y = 1:360-h
+         for x = 1:480-w
+            patch_t = target_img(y:y+(h-1), x:x+(w-1));
+            r(y,x) = corr(patch, patch_t);
+         end
+    end
+    m = max(max(r));
+     [i, j]= find(r == max(max(r)));
+end

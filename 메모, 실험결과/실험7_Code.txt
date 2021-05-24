@@ -1,0 +1,57 @@
+start = rgb2gray(imread('D:\Kyu\Study\2021 Signal & System\HW1\dataset\start.jpg'));
+kernel = [-1 -1 -1;-1 8 -1;-1 -1 -1]*5;
+start = imfilter(start, kernel, 'same');
+patch_1 = start(140:163, 274:297);
+patch_2 = start(150:173, 284:307);
+corr_get = pc(patch_1,patch_2);
+imagesc(corr_get);
+function t_img = fourier_trans(s_img)
+     t_img = cast(s_img,'double');
+     h = size(s_img,1);
+     w = size(s_img,2);
+     wy = ones(h,h);
+     wx= ones(w,w);
+     for y = 1:h
+        for m = 1:h
+            angle = (-2)*pi*(m*y/h);
+            wy(y,m)=complex(cos(angle)+(1i)*(sin(angle)));
+        end
+     end
+     wy = circshift(wy, [1 1]);
+     for x = 1:w
+        for n = 1:w
+              angle = (-2)*pi*(n*x/w);
+              wx(x,n)=complex(cos(angle)+(1i)*(sin(angle)));
+        end
+     end
+     wx = circshift(wx, [1 1]);
+     t_img = (wy*t_img*wx)/(h*w);
+end
+function in_dft = inverse_ft(img_t)
+     h = size(img_t,1);
+     w = size(img_t,2);
+     wy = ones(h,h);
+     wx= ones(w,w);
+     for y = 1:h
+        for m = 1:h
+            angle = 2*pi*(m*y/h);
+            wy(y,m)=complex(cos(angle)+(1i)*(sin(angle)));
+        end
+     end
+     for x = 1:w
+        for n = 1:w 
+              angle = 2*pi*(n*x/w);
+              wx(x,n)=complex(cos(angle)+(1i)*(sin(angle)));
+        end
+     end
+          wy = circshift(wy, [1 1]);
+          wx = circshift(wx, [1 1]);
+     in_dft = wy*img_t*wx;
+end
+function cr= pc(start,target_img)
+     start_t = fourier_trans(start);
+     target_t = fourier_trans(target_img);
+     C = start_t.*conj(target_t);
+     R = C./abs(C);
+     cr = abs(ifft2(R));
+end
